@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Ember Almanac</title>
+  <meta name="description" content="A fire-activity calendar for any US county or drawn box, harmonizing MODIS and VIIRS active-fire detections from NASA FIRMS.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#controls">Skip to controls</a>
+  <header class="site-header">
+    <div class="brand">
+      <h1>Ember Almanac</h1>
+      <p class="tagline">One fire calendar for any place, built from MODIS and VIIRS satellite detections.</p>
+    </div>
+    <div class="header-actions">
+      <span id="mock-badge" class="badge" hidden>Sample data &mdash; not real detections</span>
+      <button type="button" id="theme-btn" class="btn btn-quiet" aria-label="Switch to dark theme">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span id="theme-label">Theme</span>
+      </button>
+    </div>
+  </header>
+
+  <div id="setup-notice" class="notice" role="status" hidden>
+    <strong>Setup needed: no NASA FIRMS key.</strong>
+    Put your <code>FIRMS_MAP_KEY</code> in the <code>.env</code> file next to <code>server.js</code> and restart the server.
+    A free key takes a minute: <a href="https://firms.modaps.eosdis.nasa.gov/api/map_key/" target="_blank" rel="noopener">firms.modaps.eosdis.nasa.gov/api/map_key</a>.
+    Building calendars is disabled until then.
+  </div>
+
+  <main class="layout">
+    <aside class="panel" aria-label="Controls">
+      <form id="controls" novalidate>
+        <fieldset class="group">
+          <legend>1. Area</legend>
+          <div class="segmented" role="radiogroup" aria-label="How to choose the area">
+            <label><input type="radio" name="areamode" value="county" checked><span>County</span></label>
+            <label><input type="radio" name="areamode" value="box"><span>Draw box</span></label>
+          </div>
+
+          <div id="county-mode" class="mode">
+            <label for="county-input" class="field-label">Search US counties</label>
+            <div class="combo">
+              <input id="county-input" type="text" role="combobox" aria-expanded="false" aria-controls="county-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Loading counties&hellip;">
+              <ul id="county-list" role="listbox" aria-label="Matching counties" hidden></ul>
+            </div>
+            <p class="hint">Or click a county on the map.</p>
+            <p id="county-msg" class="msg" role="status"></p>
+          </div>
+
+          <div id="box-mode" class="mode" hidden>
+            <button type="button" id="draw-btn" class="btn" aria-pressed="false">Draw box</button>
+            <p class="hint" id="draw-hint">Press and drag on the map to draw a rectangle. Esc cancels. Boxes up to 20&deg; per side.</p>
+          </div>
+
+          <div class="area-summary" aria-live="polite">
+            <span class="field-label">Selected area</span>
+            <p id="area-name" class="area-name">Nothing selected yet</p>
+            <p id="area-size" class="hint"></p>
+          </div>
+          <p id="area-msg" class="msg msg-warn" role="status"></p>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend>2. Dates</legend>
+          <div class="presets" role="radiogroup" aria-label="Date range">
+            <label class="row"><input type="radio" name="range" value="30d"><span>Last 30 days</span></label>
+            <label class="row"><input type="radio" name="range" value="90d"><span>Last 90 days</span></label>
+            <label class="row"><input type="radio" name="range" value="12m" checked><span>Last 12 months</span></label>
+            <label class="row"><input type="radio" name="range" value="ytd"><span>This year</span></label>
+            <label class="row"><input type="radio" name="range" value="custom"><span>Custom</span></label>
+          </div>
+          <div id="custom-dates" class="custom" hidden>
+            <label>From <input type="date" id="date-start"></label>
+            <label>To <input type="date" id="date-end"></label>
+          </div>
+          <p id="range-summary" class="hint"></p>
+          <p id="date-msg" class="msg msg-warn" role="status"></p>
+        </fieldset>
+
+        <button type="submit" id="build-btn" class="btn btn-primary">Build calendar</button>
+
+        <div id="progress" class="progress" hidden>
+          <div class="progress-top">
+            <span id="progress-text" aria-live="polite">Starting&hellip;</span>
+            <button type="button" id="cancel-btn" class="btn btn-quiet">Cancel</button>
+          </div>
+          <div class="bar" role="progressbar" aria-label="Months loaded" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><i id="progress-fill"></i></div>
+        </div>
+        <div id="alert" class="alert" role="alert"></div>
+      </form>
+    </aside>
+
+    <section class="map-col" aria-label="Map">
+      <div class="map-frame">
+        <div id="map" aria-label="Map of the selected area and fire cells"></div>
+        <div id="map-fallback" class="map-fallback" hidden>The map library could not be loaded. Check your connection and reload; the calendar and data table still work once an area is chosen by county search.</div>
+      </div>
+      <div id="map-legend" class="legend" hidden>
+        <span class="legend-title">Map cells seen by:</span>
+        <span class="legend-item"><i class="sw both" aria-hidden="true"></i><span>Both sensors</span></span>
+        <span class="legend-item"><i class="sw modis" aria-hidden="true"></i><span>MODIS only</span></span>
+        <span class="legend-item"><i class="sw viirs" aria-hidden="true"></i><span>VIIRS only</span></span>
+      </div>
+      <p id="map-note" class="hint" role="status"></p>
+    </section>
+
+    <section id="results" class="results" aria-label="Results">
+      <div id="empty-state" class="empty">
+        <h2>Pick an area and dates, then build the calendar.</h2>
+        <p>You will get a day-by-day heatmap of fire activity, a map of the actual ~1&nbsp;km cells, and a view of where MODIS and VIIRS agree.</p>
+      </div>
+
+      <div id="results-body" hidden>
+        <div class="results-head">
+          <h2 id="results-title"></h2>
+          <p id="results-sub" class="hint"></p>
+          <p id="partial-note" class="msg msg-warn" role="status"></p>
+        </div>
+
+        <div class="tiles" id="tiles"></div>
+
+        <div class="cal-row">
+          <div class="card" id="cal-card">
+            <div class="card-head">
+              <h3>Fire activity calendar</h3>
+              <div class="segmented segmented-sm" role="radiogroup" aria-label="Colour days by">
+                <label><input type="radio" name="metric" value="cells" checked><span>Fire cells</span></label>
+                <label><input type="radio" name="metric" value="frp"><span>FRP (MW)</span></label>
+              </div>
+            </div>
+            <div id="calendar" class="calendar"></div>
+            <div id="cal-legend" class="legend"></div>
+            <p class="hint">One square per day. Select a day to see its ~1&nbsp;km cells on the map. Arrow keys move between days.</p>
+          </div>
+
+          <div class="card" id="detail-card">
+            <h3>Selected day</h3>
+            <div id="detail" aria-live="polite"></div>
+            <button type="button" id="whole-btn" class="btn">Show whole period on map</button>
+          </div>
+        </div>
+
+        <div class="card" id="agr-card">
+          <div class="card-head"><h3>Sensor agreement over time</h3></div>
+          <div id="agr-chart"></div>
+          <div class="legend">
+            <span class="legend-item"><i class="sw both" aria-hidden="true"></i><span>Both sensors</span></span>
+            <span class="legend-item"><i class="sw modis" aria-hidden="true"></i><span>MODIS only</span></span>
+            <span class="legend-item"><i class="sw viirs" aria-hidden="true"></i><span>VIIRS only</span></span>
+          </div>
+          <p class="hint">Each fire cell-day is counted once, then sorted by which sensors saw it.</p>
+        </div>
+
+        <details class="card" id="table-card">
+          <summary>Data table</summary>
+          <div class="table-actions">
+            <button type="button" id="csv-btn" class="btn">Download CSV</button>
+            <span class="hint">The CSV holds every day in the range; the table lists only days with detections.</span>
+          </div>
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Daily data table">
+            <table id="day-table"></table>
+          </div>
+        </details>
+
+        <section id="how" class="card prose" aria-labelledby="how-h">
+          <h3 id="how-h">How harmonization works</h3>
+          <p>NASA flies two kinds of fire sensors: MODIS (Terra, Aqua; 1&nbsp;km pixels) and VIIRS (Suomi NPP, NOAA-20, NOAA-21; 375&nbsp;m pixels). Counting raw detections would double count the same fire. So every detection is snapped to one common ~1&nbsp;km grid, the coarser MODIS footprint. A cell-day counts once, no matter how many sensors or overpasses saw it. Because a MODIS pixel can sit a cell away from the VIIRS pixels of the same fire, a cell counts as seen by both when the other sensor fired in that cell or one next to it on the same day. Confidence is mapped to one low / nominal / high scale (MODIS: below 30, 30&ndash;79, 80 and up). Fire radiative power takes the strongest single overpass per sensor, then the larger of the two sensors, so nothing is added twice. Days are local solar days<span id="tz-note"></span>.</p>
+          <h4>Sources used</h4>
+          <div class="table-wrap"><table id="sources-table"></table></div>
+          <p class="hint">Suomi NPP stopped delivering data on 2 Nov 2026, so later dates rely on NOAA-20, NOAA-21 and MODIS.</p>
+          <p class="credit">Data: NASA FIRMS (MODIS Collection 6.1, VIIRS 375 m)</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">Ember Almanac &middot; NASA Space Apps 2026 &middot; Harmonization of MODIS and VIIRS Hot Spots &middot; Basemap &copy; OpenStreetMap contributors</footer>
+
+  <div id="tip" class="tip" role="tooltip" hidden></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

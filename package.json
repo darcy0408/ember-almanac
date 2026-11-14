@@ -1,0 +1,13 @@
+{
+  "name": "ember-almanac-2026",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fire-activity calendar harmonizing MODIS and VIIRS active-fire detections from NASA FIRMS.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "test": "node --test",
+    "fetch-counties": "node scripts/fetch-counties.mjs"
+  }
+}
