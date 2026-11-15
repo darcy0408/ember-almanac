@@ -89,6 +89,8 @@ test favoured the grid in two counties, favoured raw counts in one, and failed i
 - A detection is heat consistent with fire in a pixel, not burned area. Cloud and smoke hide fires.
 - Sensitivity, overpass time and cloud at overpass still differ between sensors after gridding.
 - Small counties with few detections give percentages that swing widely; the page says so.
+- The multi-year view exists for any county, but it takes 30 to 60 minutes of FIRMS downloads per
+  county, so the app ships with a set already built. The live explorer covers up to 12 months.
 - The live explorer runs on a hosted server with one FIRMS key, so many visitors at once can hit the
   FIRMS transaction limit for a few minutes. The examples are precomputed and always load.
 
