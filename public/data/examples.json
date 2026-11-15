@@ -1,3 +1,4 @@
 [
-  { "id": "20017", "file": "data/example-20017.json", "label": "Chase County, Kansas", "note": "Flint Hills: prairie burning every spring" }
+  { "id": "20017", "file": "data/example-20017.json", "label": "Chase County, Kansas", "note": "Flint Hills: prairie burning every spring" },
+  { "id": "08077", "file": "data/example-08077.json", "label": "Mesa County, Colorado", "note": "Grand Junction area: spring field burning and summer wildfire" }
 ]

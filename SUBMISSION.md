@@ -50,6 +50,15 @@ regional fire and smoke reports and have to defend the number.
 - 2025 was above average by both sensors (MODIS +26%, VIIRS +46%). For 2026 through 1 November the
   sensors disagree (MODIS −7%, VIIRS +26%), so the direction is not established.
 
+## What we found (Mesa County, Colorado, 2013–2025)
+
+- A wildfire-driven record rather than a seasonal one: 2018, 2020 and 2025 stand far above the rest.
+- VIIRS reported a median of 3.8 detections for every MODIS detection (range 1.5–6.3).
+- The sensors moved in the same direction in 10 of 12 year-to-year changes (rank correlation 0.90).
+- Here the held-out test did not favour the grid: median error 20% for raw detections against 23%
+  for cell-days. Gridding is not a guaranteed improvement, and the page reports it either way.
+- 2025 was far above average by both sensors (MODIS about six times its average, VIIRS about five).
+
 (Add the other example counties here once their files are built.)
 
 ## Limits
