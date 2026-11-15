@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ember Almanac narration</title>
+<style>
+  :root { color-scheme: dark; --page:#0d0d0d; --surface:#1a1a19; --text:#f0efec; --text-2:#c3c2b7; --muted:#898781; --hair:#2c2c2a; --accent:#f06933; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1500px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); align-items: start; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  video { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; border: 1px solid var(--hair); display: block; }
+  .bar { height: 6px; background: var(--hair); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+  button { font: inherit; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--hair); background: var(--surface); color: var(--text); cursor: pointer; }
+  button.primary { background: var(--accent); color: #0b0b0b; border-color: transparent; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  #status { color: var(--text-2); min-height: 1.5em; margin-top: 8px; }
+  #count { font-size: 5rem; font-weight: 700; text-align: center; color: var(--accent); min-height: 1.2em; }
+  .panel { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 16px; }
+  h1 { font-size: 1.1rem; margin: 0 0 4px; }
+  .hint { color: var(--text-2); font-size: .875rem; margin: 0 0 12px; }
+  ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  li { padding: 10px 12px; border-radius: 8px; border-left: 4px solid transparent; color: var(--muted); transition: color .15s, background .15s; }
+  li .t { font-size: .75rem; font-variant-numeric: tabular-nums; display: block; }
+  li .say { font-size: 1.35rem; line-height: 1.35; }
+  li.now { color: var(--text); background: #262624; border-left-color: var(--accent); }
+  li.next { color: var(--text-2); }
+  li .left { display: none; font-size: .8rem; color: var(--accent); }
+  li.now .left { display: block; }
+  #take { margin-top: 16px; }
+  #take video { margin-top: 8px; }
+  a { color: var(--text); }
+  code { background: #262624; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <video id="v" src="walkthrough.mp4" muted playsinline preload="auto"></video>
+    <div class="bar" aria-hidden="true"><i id="fill"></i></div>
+    <div class="row">
+      <button id="practice">Practice (no recording)</button>
+      <button id="record" class="primary">Record with my voice</button>
+      <button id="stop" disabled>Stop</button>
+    </div>
+    <p id="status" role="status"></p>
+    <div id="count" aria-live="assertive"></div>
+    <div id="take" hidden class="panel">
+      <h1>Your take</h1>
+      <p class="hint">Saved to your Downloads folder as <code id="fname"></code>. Play it back here; record again if you want another go.</p>
+      <video id="playback" controls></video>
+    </div>
+  </section>
+  <aside class="panel">
+    <h1>Say this</h1>
+    <p class="hint">The highlighted line is the one to say now. The video does the clicking. Don't worry about matching it word for word.</p>
+    <ol id="lines"></ol>
+  </aside>
+</main>
+<script>
+// Cue times come from the recording run (demo/record-walkthrough.mjs).
+const LINES = [
+  [0.0,  'Fire counts get compared across years. But the satellites change.'],
+  [3.6,  'Ember Almanac asks: is fire up or down, and do the satellites agree?'],
+  [9.0,  'Raw counts mislead: VIIRS sees three and a half times more than MODIS.'],
+  [13.2, 'On one shared grid, they move together in eleven of twelve years.'],
+  [18.6, 'Thirteen years as a calendar. In Chase County, Kansas, the burn season is April, every year.'],
+  [24.2, 'And for any place you pick, a live daily calendar and map.'],
+];
+const END = 30;
+const $ = (id) => document.getElementById(id);
+const v = $('v'), list = $('lines');
+const fmt = (s) => `0:${String(Math.floor(s)).padStart(2, '0')}`;
+const items = LINES.map(([t, text], i) => {
+  const li = document.createElement('li');
+  const tt = document.createElement('span'); tt.className = 't'; tt.textContent = `${fmt(t)} to ${fmt(LINES[i + 1]?.[0] ?? END)}`;
+  const say = document.createElement('span'); say.className = 'say'; say.textContent = text;
+  const left = document.createElement('span'); left.className = 'left';
+  li.append(tt, say, left); list.append(li); return { li, left };
+});
+function paint() {
+  const t = v.currentTime;
+  let cur = -1; for (let i = 0; i < LINES.length; i++) if (t >= LINES[i][0]) cur = i;
+  items.forEach(({ li, left }, i) => {
+    li.classList.toggle('now', i === cur && !v.paused);
+    li.classList.toggle('next', i === cur + 1);
+    if (i === cur) left.textContent = `${Math.max(0, (LINES[i + 1]?.[0] ?? END) - t).toFixed(1)} s left on this line`;
+  });
+  $('fill').style.width = `${Math.min(100, (t / END) * 100)}%`;
+  if (!v.paused) requestAnimationFrame(paint);
+}
+v.addEventListener('play', paint); v.addEventListener('seeked', paint);
+let rec = null, mic = null, chunks = [], running = false;
+const setBusy = (b) => { running = b; $('practice').disabled = b; $('record').disabled = b; $('stop').disabled = !b; };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function countdown() { for (const n of ['3', '2', '1']) { $('count').textContent = n; await sleep(800); if (!running) break; } $('count').textContent = ''; }
+function finish() {
+  v.pause(); paint();
+  if (rec && rec.state !== 'inactive') rec.stop();
+  if (mic) { mic.getTracks().forEach((t) => t.stop()); mic = null; }
+  setBusy(false);
+}
+v.addEventListener('ended', finish);
+$('stop').addEventListener('click', () => { $('status').textContent = 'Stopped.'; finish(); });
+$('practice').addEventListener('click', async () => {
+  setBusy(true); $('status').textContent = 'Practice run: nothing is being recorded.';
+  v.currentTime = 0; await countdown(); if (running) v.play();
+});
+$('record').addEventListener('click', async () => {
+  try {
+    mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  } catch (e) {
+    $('status').textContent = 'Could not use the microphone. Allow it for this page in the address bar, then try again.';
+    return;
+  }
+  setBusy(true); v.currentTime = 0; chunks = [];
+  const stream = new MediaStream([...v.captureStream().getVideoTracks(), ...mic.getAudioTracks()]);
+  const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m));
+  rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8e6, audioBitsPerSecond: 128e3 });
+  rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const name = `ember-almanac-demo-${new Date().toISOString().slice(11, 19).replace(/:/g, '')}.webm`;
+    const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    $('fname').textContent = name; $('playback').src = url; $('take').hidden = false;
+    $('status').textContent = 'Done. Your take was downloaded.';
+  };
+  $('status').textContent = 'Get ready. Recording starts after the countdown.';
+  await countdown();
+  if (!running) { finish(); return; }
+  $('status').textContent = 'Recording. Read the highlighted line.';
+  rec.start(); v.play();
+});
+paint();
+</script>
+</body>
+</html>
