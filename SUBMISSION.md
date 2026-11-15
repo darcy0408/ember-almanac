@@ -76,11 +76,18 @@ The code, tests and this text were written with Claude Code (Anthropic) during t
 and reviewed by the team. No AI-generated data is used: every number shown comes from NASA FIRMS.
 A sample-data mode exists for development only and is labelled on screen when active.
 
-## 30-second demo script
+## 30-second demo
 
-1. (0–5 s) Title: "Is fire up or down here, and do the satellites agree?"
-2. (5–12 s) Open the Chase County example. Read the headline: both sensors say 2025 was above average.
-3. (12–18 s) Raw detections chart: VIIRS reports 3.5 times as many as MODIS.
-4. (18–24 s) Indexed chart and table: same direction in 11 of 12 years; on one grid the ratio falls to 1.8.
-5. (24–28 s) Historical calendar: the April burn season lines up year after year.
-6. (28–30 s) Live explorer: draw a box anywhere, get the same calendar.
+`demo/walkthrough.mp4` is a silent 30-second screen recording of the app (made by
+`demo/record-walkthrough.mjs`). To add narration: `npm run demo`, open http://localhost:8799,
+press "Record with my voice" and read the highlighted lines. The take downloads as a `.webm`
+with picture and voice, ready to upload.
+
+| Time | On screen | Say |
+|---|---|---|
+| 0:00 | Clicks "Load example" | Fire counts get compared across years. But the satellites change. |
+| 0:03 | Headline for Chase County | Ember Almanac asks: is fire up or down, and do the satellites agree? |
+| 0:09 | Raw detections chart | Raw counts mislead: VIIRS sees three and a half times more than MODIS. |
+| 0:13 | Indexed chart, then the table | On one shared grid, they move together in eleven of twelve years. |
+| 0:18 | Historical calendar | Thirteen years as a calendar. In Chase County, Kansas, the burn season is April, every year. |
+| 0:24 | Live calendar, a day clicked, map | And for any place you pick, a live daily calendar and map. |
