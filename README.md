@@ -8,6 +8,8 @@ The question it answers: **is fire activity here up or down, and do the satellit
 It is for someone preparing a regional fire report who needs to know whether a change in the
 count reflects fire or a change in how it was observed.
 
+**Try it:** https://web-production-8baef68a.up.railway.app (full app, any county or drawn box). A static copy with the examples only is at https://darcy0408.github.io/ember-almanac/
+
 Two parts:
 
 **Multi-year examples (precomputed, load instantly, no server needed).** For a county, every

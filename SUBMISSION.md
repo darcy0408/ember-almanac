@@ -3,6 +3,9 @@
 Draft text for the Space Apps project page. Edit freely; every number below comes from the
 precomputed example files in `public/data/` and can be re-derived with `scripts/build-example.mjs`.
 
+Live app: https://web-production-8baef68a.up.railway.app
+Code: https://github.com/darcy0408/ember-almanac
+
 ## High-level summary (about 150 words)
 
 Fire reports compare this year with past years, but the satellites behind the count are changing:
@@ -86,7 +89,8 @@ test favoured the grid in two counties, favoured raw counts in one, and failed i
 - A detection is heat consistent with fire in a pixel, not burned area. Cloud and smoke hide fires.
 - Sensitivity, overpass time and cloud at overpass still differ between sensors after gridding.
 - Small counties with few detections give percentages that swing widely; the page says so.
-- The live explorer needs a server with a FIRMS key; the public page serves precomputed examples.
+- The live explorer runs on a hosted server with one FIRMS key, so many visitors at once can hit the
+  FIRMS transaction limit for a few minutes. The examples are precomputed and always load.
 
 ## NASA data
 
