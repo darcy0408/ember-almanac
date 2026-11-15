@@ -1,4 +1,6 @@
 [
   { "id": "20017", "file": "data/example-20017.json", "label": "Chase County, Kansas", "note": "Flint Hills: prairie burning every spring" },
-  { "id": "08077", "file": "data/example-08077.json", "label": "Mesa County, Colorado", "note": "Grand Junction area: spring field burning and summer wildfire" }
+  { "id": "08077", "file": "data/example-08077.json", "label": "Mesa County, Colorado", "note": "Grand Junction area: spring field burning and summer wildfire" },
+  { "id": "12009", "file": "data/example-12009.json", "label": "Brevard County, Florida", "note": "Melbourne area: frequent prescribed burning, steady year to year" },
+  { "id": "41051", "file": "data/example-41051.json", "label": "Multnomah County, Oregon", "note": "Portland: very few detections, so a test of the limits" }
 ]

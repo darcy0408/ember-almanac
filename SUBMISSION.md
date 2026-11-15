@@ -59,7 +59,27 @@ regional fire and smoke reports and have to defend the number.
   for cell-days. Gridding is not a guaranteed improvement, and the page reports it either way.
 - 2025 was far above average by both sensors (MODIS about six times its average, VIIRS about five).
 
-(Add the other example counties here once their files are built.)
+## What we found (Brevard County, Florida, 2013–2025)
+
+- A steady record with no single dominant year, typical of frequent prescribed burning.
+- VIIRS reported a median of 3.2 detections for every MODIS detection (range 2.4–4.7).
+- The sensors moved in the same direction in 10 of 12 year-to-year changes (rank correlation 0.86).
+- Here the held-out test favoured the grid: median error 6% for cell-days against 12% for raw detections.
+- For 2025 the sensors disagree (MODIS −13%, VIIRS +27%), so the page says the direction is not
+  established. For 2026 through 1 November both are below average (MODIS −51%, VIIRS −37%).
+
+## What we found (Multnomah County, Oregon, 2013–2025)
+
+- A deliberate hard case: MODIS recorded between 0 and 3 detections in every year except 2017
+  (62, the Eagle Creek fire), while VIIRS recorded 16 to 48 in those same years.
+- With counts that small the comparison breaks down: the sensors moved together in only 4 of 12
+  year-to-year changes (rank correlation 0.12), and the held-out test fails for both measures.
+- The page flags the small counts instead of presenting a trend. The one clear signal, 2017, shows
+  in both sensors.
+
+Across the four counties, gridding roughly halves the raw gap between sensors, and the two records
+track each other well wherever there is enough fire to count (three of four counties). The held-out
+test favoured the grid in two counties, favoured raw counts in one, and failed in the fourth.
 
 ## Limits
 
