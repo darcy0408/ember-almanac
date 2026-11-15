@@ -51,13 +51,24 @@ await until(18.6); cue('5 calendar');               // 21-26: historical calenda
 await scroll(await topOf('h:historical calendar', 120), 850);
 { const pts = await p.evaluate(() => { const bs = [...document.querySelectorAll('#evidence .hm-grid button')].map((b) => b.getBoundingClientRect()); const xs = [...new Set(bs.map((r) => Math.round(r.x)))].sort((a, b) => a - b); const x = xs[14]; const col = bs.filter((r) => Math.round(r.x) === x).sort((a, b) => a.y - b.y); return [col[0], col[col.length - 1]].map((r) => [r.x + r.width / 2, r.y + r.height / 2]); });
   await move(pts[0][0], pts[0][1], 700); await move(pts[1][0], pts[1][1], 1600); }
-await until(24.2); cue('6 live');                   // 26-30: live explorer day -> map
+await until(24.2); cue('6 phoenix');                // 24.2-31.5: switch example to Maricopa (Phoenix)
+await scroll(await topOf('#ev-picker', 140), 800);
+await move(...(await center(p.locator('#ev-picker'))), 600);
+await p.evaluate(([x, y]) => dispatchEvent(new MouseEvent('mousedown', { clientX: x, clientY: y })), [cx, cy]);
+await p.waitForTimeout(300);
+await p.selectOption('#ev-picker', '04013');
+await p.waitForFunction(() => document.querySelector('#evidence .ev-headline')?.textContent.includes('65%'), null, { timeout: 10000 });
+await scroll(await topOf('#evidence .ev-headline', 140), 500);
+{ const r = await p.locator('#evidence .ev-headline').boundingBox(); await move(r.x + r.width * 0.2, r.y + r.height * 0.5, 600); await move(r.x + r.width * 0.8, r.y + r.height * 0.5, 1400); }
+await scroll(await topOf('h:each sensor indexed'), 850);
+{ const r = await p.locator('#evidence .ev-card').nth(1).boundingBox(); await move(r.x + r.width * 0.1, r.y + r.height * 0.55, 500); await move(r.x + r.width * 0.93, r.y + r.height * 0.55, 1300); }
+await until(34.0); cue('7 live');                   // 31.5-37.5: live explorer day -> map
 await scroll(await topOf('#cal-card', 200), 900);
 { const day = p.locator('.cal-cell[data-date="2026-04-07"]'); await move(...(await center(day)), 500); await p.mouse.down(); await p.mouse.up(); }
 await p.waitForTimeout(350);
 await scroll(await topOf('#map', 60), 900);
 await move(760, 330, 600);
-await until(30.0); cue('end');
+await until(40.0); cue('end');
 const startOffset = (T0 - t00) / 1000;
 await ctx.close(); const path = await p.video().path(); await b.close();
 writeFileSync('cues.json', JSON.stringify({ startOffset, cues, path }, null, 1));

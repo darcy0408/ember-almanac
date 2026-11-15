@@ -62,6 +62,17 @@ regional fire and smoke reports and have to defend the number.
   for cell-days. Gridding is not a guaranteed improvement, and the page reports it either way.
 - 2025 was far above average by both sensors (MODIS about six times its average, VIIRS about five).
 
+## What we found (Maricopa County, Arizona, 2013–2025)
+
+- The Phoenix area: a record dominated by two years, 2019 and 2020, which both sensors show at
+  roughly two to three and a half times their own average.
+- VIIRS reported a median of 4.0 detections for every MODIS detection (range 1.9–6.1).
+- The sensors moved in the same direction in 11 of 12 year-to-year changes (rank correlation 0.94).
+- The held-out test did not favour the grid here: median error 12% for raw detections against 35%
+  for cell-days.
+- 2025 was below average by both sensors (MODIS −65%, VIIRS −37%), and so is 2026 through
+  1 November (MODIS −67%, VIIRS −36%).
+
 ## What we found (Brevard County, Florida, 2013–2025)
 
 - A steady record with no single dominant year, typical of frequent prescribed burning.
@@ -80,9 +91,9 @@ regional fire and smoke reports and have to defend the number.
 - The page flags the small counts instead of presenting a trend. The one clear signal, 2017, shows
   in both sensors.
 
-Across the four counties, gridding roughly halves the raw gap between sensors, and the two records
-track each other well wherever there is enough fire to count (three of four counties). The held-out
-test favoured the grid in two counties, favoured raw counts in one, and failed in the fourth.
+Across the five counties, gridding narrows the raw gap between sensors, and the two records
+track each other well wherever there is enough fire to count (four of five counties). The held-out
+test favoured the grid in two counties, favoured raw counts in two, and failed in the fifth.
 
 ## Limits
 
@@ -111,9 +122,9 @@ The code, tests and this text were written with Claude Code (Anthropic) during t
 and reviewed by the team. No AI-generated data is used: every number shown comes from NASA FIRMS.
 A sample-data mode exists for development only and is labelled on screen when active.
 
-## 30-second demo
+## 40-second demo
 
-`demo/walkthrough.mp4` is a silent 30-second screen recording of the app (made by
+`demo/walkthrough.mp4` is a silent 40-second screen recording of the app (made by
 `demo/record-walkthrough.mjs`). To add narration: `npm run demo`, open http://localhost:8799,
 press "Record with my voice" and read the highlighted lines. The take downloads as a `.webm`
 with picture and voice, ready to upload.
