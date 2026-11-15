@@ -111,7 +111,7 @@ regional fire and smoke reports and have to defend the number.
 ## What we found (Multnomah County, Oregon, 2013–2025)
 
 - A deliberate hard case: MODIS recorded between 0 and 3 detections in every year except 2017
-  (62, the Eagle Creek fire), while VIIRS recorded 16 to 48 in those same years.
+  (62, the year of the Eagle Creek fire in the Columbia River Gorge), while VIIRS recorded 16 to 48 in those same years.
 - With counts that small the comparison breaks down: the sensors moved together in only 4 of 12
   year-to-year changes (rank correlation 0.12), and the held-out test fails for both measures.
 - The page flags the small counts instead of presenting a trend. The one clear signal, 2017, shows
@@ -160,9 +160,10 @@ with picture and voice, ready to upload.
 
 | Time | On screen | Say |
 |---|---|---|
-| 0:00 | Clicks "Load example" | Fire counts get compared across years. But the satellites change. |
-| 0:03 | Headline for Chase County | Ember Almanac asks: is fire up or down, and do the satellites agree? |
-| 0:09 | Raw detections chart | Raw counts mislead: VIIRS sees three and a half times more than MODIS. |
-| 0:13 | Indexed chart, then the table | On one shared grid, they move together in eleven of twelve years. |
-| 0:18 | Historical calendar | Thirteen years as a calendar. In Chase County, Kansas, the burn season is April, every year. |
-| 0:24 | Live calendar, a day clicked, map | And for any place you pick, a live daily calendar and map. |
+| 0:00 | Clicks "Load example" | I'm Darcy, and this is Ember Almanac. |
+| 0:03 | Headline for Chase County | Is fire up or down, and do the satellites agree? |
+| 0:08 | Raw detections chart | Raw counts mislead: VIIRS sees three and a half times more. |
+| 0:12 | Indexed chart, then the table | On one shared grid, they move together in eleven of twelve years. |
+| 0:17 | Historical calendar | In Chase County, Kansas, the burn season is every April. |
+| 0:20 | Switches to Maricopa County | In Phoenix, both sensors agree: 2025 was below average. |
+| 0:25 | Live calendar, a day clicked, map | And any place you pick gets a live calendar and map. |
