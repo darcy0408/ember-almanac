@@ -44,7 +44,7 @@ export function loadCounties() {
   if (loadPromise) return loadPromise;
   loadPromise = (async () => {
     if (!window.topojson) throw new Error('The topojson library did not load.');
-    const res = await fetch('/data/counties-10m.json');
+    const res = await fetch('data/counties-10m.json');
     if (!res.ok) throw new Error(`County file returned HTTP ${res.status}.`);
     const topo = await res.json();
     const feats = window.topojson.feature(topo, topo.objects.counties).features;

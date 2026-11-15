@@ -4,12 +4,31 @@ One fire calendar for any place, built from MODIS and VIIRS satellite detections
 
 NASA Space Apps 2026 — challenge: *Harmonization of MODIS and VIIRS Hot Spots*.
 
-Pick a US county or draw a box on the map, choose a date range, and get:
+The question it answers: **is fire activity here up or down, and do the satellites agree?**
+It is for someone preparing a regional fire report who needs to know whether a change in the
+count reflects fire or a change in how it was observed.
+
+Two parts:
+
+**Multi-year examples (precomputed, load instantly, no server needed).** For a county, every
+year since 2013 counted separately by MODIS (Terra + Aqua) and by VIIRS on Suomi NPP, the two
+records that used the same satellites the whole time:
+
+- a headline: the last complete year against the earlier average, per sensor, and whether they agree,
+- raw detections per year, and both sensors indexed to their own average,
+- a before-and-after table, including a held-out test of one scale factor,
+- a year-by-week historical calendar,
+- the annual table as CSV.
+
+**Live explorer (needs the local server).** Pick a US county or draw a box anywhere, choose a
+date range of up to a year, and get:
 
 - a day-by-day calendar heatmap of fire activity,
-- a map of the ~1 km grid cells that burned on any day, coloured by which sensors saw them,
+- a map of the ~1 km grid cells with detected fire on any day, coloured by which sensors saw them,
 - a chart of how often MODIS and VIIRS agree over time,
 - a data table and CSV download of the daily series.
+
+A detection means a sensor saw heat consistent with fire in that pixel. It is not burned area.
 
 ## Run it
 
@@ -20,6 +39,13 @@ Requires Node 22 or newer. There are no npm dependencies.
 3. `npm start`, then open http://localhost:8787
 
 `npm test` runs the unit tests (no network needed).
+
+To precompute a multi-year example for a county (by 5-digit FIPS code) and add it to the page:
+
+    node --env-file=.env scripts/build-example.mjs 20017 2013
+
+then list it in `public/data/examples.json`. A 13-year pull takes roughly half an hour because
+of the FIRMS transaction limit; the script paces itself and resumes from the disk cache.
 
 ## How the harmonization works
 
@@ -62,5 +88,13 @@ The logic lives in `lib/harmonize.js`.
 ## Limits
 
 - Active-fire detections are not burned area, and cloud or smoke can hide fires from both sensors.
+- Putting both sensors on one grid removes repeat counting, but they still differ in sensitivity,
+  overpass time and cloud cover at overpass. The examples report how well they agree rather than
+  assuming they do.
+- Counting all sensors together is not comparable across years, because the VIIRS fleet grew from
+  one satellite to three. Year-to-year comparisons use MODIS and Suomi NPP separately.
+- FIRMS allows 5,000 transactions per 10 minutes per key, and a 5-day request appears to cost about
+  five. Over the limit it answers "Invalid MAP_KEY."; the client checks the key status to tell the
+  two apart.
 - The one-cell agreement tolerance is a simple rule, not a per-pixel footprint model.
 - County search covers the United States; drawn boxes work anywhere, up to 20° per side.

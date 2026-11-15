@@ -59,7 +59,7 @@ export function renderAgreement(container, series) {
 
   const all = totals.reduce((a, c) => a + c, 0);
   const wrap = el('div', { class: 'agr', role: 'img',
-    'aria-label': `Stacked bars of fire cell-days per ${unit}, split into both sensors, MODIS only and VIIRS only. ${all} cell-days in total. The data table below lists every day.` },
-  el('div', { class: 'agr-ytitle', text: `Fire cell-days per ${unit}` }), yAxis, plot, el('span'), xAxis);
+    'aria-label': `Stacked bars of cell-days with detected fire per ${unit}, split into both sensors, MODIS only and VIIRS only. ${all} cell-days in total. The data table below lists every day.` },
+  el('div', { class: 'agr-ytitle', text: `Cell-days with detected fire per ${unit}` }), yAxis, plot, el('span'), xAxis);
   container.replaceChildren(wrap);
 }

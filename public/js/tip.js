@@ -13,7 +13,7 @@ function ensure() {
 }
 
 /** lines: [{label, value}] plus optional title. Built with textContent only. */
-export function showTip(target, title, rows) {
+export function showTip(target, title, rows, opts = {}) {
   const t = ensure();
   t.replaceChildren();
   const h = document.createElement('div');
@@ -26,7 +26,7 @@ export function showTip(target, title, rows) {
     if (swatch) { const s = document.createElement('i'); s.className = 'sw ' + swatch; s.setAttribute('aria-hidden', 'true'); row.append(s); }
     const a = document.createElement('span'); a.textContent = k;
     const b = document.createElement('span'); b.className = 'tip-val'; b.textContent = v;
-    row.append(a, b);
+    if (opts.valueFirst) { row.classList.add('tip-vfirst'); row.append(b, a); } else row.append(a, b);
     t.append(row);
   }
   t.hidden = false;

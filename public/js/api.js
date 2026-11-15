@@ -25,7 +25,7 @@ async function parseError(res) {
 }
 
 export async function getStatus() {
-  const res = await doFetch('/api/status');
+  const res = await doFetch('api/status');
   if (!res.ok) throw await parseError(res);
   return res.json();
 }
@@ -44,7 +44,7 @@ export function splitMonths(start, end) {
 }
 
 async function callMonth(area, piece, signal) {
-  const res = await doFetch('/api/calendar', {
+  const res = await doFetch('api/calendar', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ area, start: piece.start, end: piece.end }),

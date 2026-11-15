@@ -4,7 +4,7 @@ import { classBreaks, classOf, rampSlot } from './analysis.js';
 import { showTip, hideTip } from './tip.js';
 
 const METRICS = {
-  cells: { key: 'cells', label: 'Fire cells', unit: 'fire cells', integer: true, value: (d) => d.cells },
+  cells: { key: 'cells', label: 'Cells with detected fire', unit: 'cells with detected fire', integer: true, value: (d) => d.cells },
   frp: { key: 'frp', label: 'FRP (MW)', unit: 'MW', integer: false, value: (d) => d.frp || 0 },
 };
 export { METRICS };
@@ -70,7 +70,7 @@ export function renderCalendar(container, opts) {
     if (!d) { grid.append(el('span', { class: 'cal-pad', 'aria-hidden': 'true' })); continue; }
     const v = m.value(d);
     const slot = rampSlot(classOf(v, breaks), n);
-    const label = `${fmtLong(date)}: ${v > 0 ? `${fmtInt(d.cells)} fire cells, ${fmtNum(d.frp || 0)} MW FRP` : 'no detections'}`;
+    const label = `${fmtLong(date)}: ${v > 0 ? `${fmtInt(d.cells)} cells with detected fire, ${fmtNum(d.frp || 0)} MW FRP` : 'no detections'}`;
     const b = el('button', {
       type: 'button', class: `cal-cell r${slot}`, 'data-date': date,
       'aria-label': label, 'aria-pressed': date === selected ? 'true' : 'false',
@@ -108,7 +108,7 @@ export function renderCalendar(container, opts) {
   container.replaceChildren(inner);
 
   const rows = (d) => [
-    ['Fire cells', fmtInt(d.cells)],
+    ['Cells with detected fire', fmtInt(d.cells)],
     ['Both sensors', fmtInt(d.both), 'both'],
     ['MODIS only', fmtInt(d.modisOnly), 'modis'],
     ['VIIRS only', fmtInt(d.viirsOnly), 'viirs'],
@@ -119,7 +119,7 @@ export function renderCalendar(container, opts) {
   const show = (btn) => {
     const d = byDate.get(btn.dataset.date);
     if (!d) return;
-    if (d.cells === 0) showTip(btn, fmtLong(d.date), [['Fire cells', 'none detected']]);
+    if (d.cells === 0) showTip(btn, fmtLong(d.date), [['Cells with detected fire', 'none']]);
     else showTip(btn, fmtLong(d.date), rows(d));
   };
   const focusDate = (date) => {

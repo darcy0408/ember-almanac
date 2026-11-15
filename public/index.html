@@ -6,9 +6,9 @@
   <meta name="color-scheme" content="light dark">
   <title>Ember Almanac</title>
   <meta name="description" content="A fire-activity calendar for any US county or drawn box, harmonizing MODIS and VIIRS active-fire detections from NASA FIRMS.">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <a class="skip" href="#controls">Skip to controls</a>
@@ -18,6 +18,7 @@
       <p class="tagline">One fire calendar for any place, built from MODIS and VIIRS satellite detections.</p>
     </div>
     <div class="header-actions">
+      <a id="example-link" class="header-link" href="#example=08077">Load example</a>
       <span id="mock-badge" class="badge" hidden>Sample data &mdash; not real detections</span>
       <button type="button" id="theme-btn" class="btn btn-quiet" aria-label="Switch to dark theme">
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -34,6 +35,8 @@
   </div>
 
   <main class="layout">
+    <section id="evidence" class="evidence" aria-label="Evidence: multi-year example" hidden></section>
+
     <aside class="panel" aria-label="Controls">
       <form id="controls" novalidate>
         <fieldset class="group">
@@ -93,12 +96,13 @@
           <div class="bar" role="progressbar" aria-label="Months loaded" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><i id="progress-fill"></i></div>
         </div>
         <div id="alert" class="alert" role="alert"></div>
+        <p id="static-notice" class="notice-inline" role="status" hidden>Live explorer is not available on this static page. The example above uses real, precomputed NASA data. To explore any area, run the app locally (see README).</p>
       </form>
     </aside>
 
     <section class="map-col" aria-label="Map">
       <div class="map-frame">
-        <div id="map" aria-label="Map of the selected area and fire cells"></div>
+        <div id="map" aria-label="Map of the selected area and cells with detected fire"></div>
         <div id="map-fallback" class="map-fallback" hidden>The map library could not be loaded. Check your connection and reload; the calendar and data table still work once an area is chosen by county search.</div>
       </div>
       <div id="map-legend" class="legend" hidden>
@@ -112,8 +116,11 @@
 
     <section id="results" class="results" aria-label="Results">
       <div id="empty-state" class="empty">
-        <h2>Pick an area and dates, then build the calendar.</h2>
-        <p>You will get a day-by-day heatmap of fire activity, a map of the actual ~1&nbsp;km cells, and a view of where MODIS and VIIRS agree.</p>
+        <h2>Is fire activity here up or down, and do the satellites agree?</h2>
+        <p>Start with a precomputed multi-year example built from real NASA FIRMS data. It loads instantly.</p>
+        <div id="example-buttons" class="example-buttons"><button type="button" class="btn btn-primary btn-cta" id="example-fallback" disabled>Loading examples&hellip;</button></div>
+        <h3 class="empty-sub">Or build a calendar for any area</h3>
+        <p>Pick an area and dates, then build the calendar. You will get a day-by-day heatmap of fire activity, a map of the actual ~1&nbsp;km cells, and a view of where MODIS and VIIRS agree.</p>
       </div>
 
       <div id="results-body" hidden>
@@ -130,7 +137,7 @@
             <div class="card-head">
               <h3>Fire activity calendar</h3>
               <div class="segmented segmented-sm" role="radiogroup" aria-label="Colour days by">
-                <label><input type="radio" name="metric" value="cells" checked><span>Fire cells</span></label>
+                <label><input type="radio" name="metric" value="cells" checked><span>Fire-detection cells</span></label>
                 <label><input type="radio" name="metric" value="frp"><span>FRP (MW)</span></label>
               </div>
             </div>
@@ -154,7 +161,7 @@
             <span class="legend-item"><i class="sw modis" aria-hidden="true"></i><span>MODIS only</span></span>
             <span class="legend-item"><i class="sw viirs" aria-hidden="true"></i><span>VIIRS only</span></span>
           </div>
-          <p class="hint">Each fire cell-day is counted once, then sorted by which sensors saw it.</p>
+          <p class="hint">Each cell-day with detected fire is counted once, then sorted by which sensors saw it.</p>
         </div>
 
         <details class="card" id="table-card">
@@ -170,7 +177,7 @@
 
         <section id="how" class="card prose" aria-labelledby="how-h">
           <h3 id="how-h">How harmonization works</h3>
-          <p>NASA flies two kinds of fire sensors: MODIS (Terra, Aqua; 1&nbsp;km pixels) and VIIRS (Suomi NPP, NOAA-20, NOAA-21; 375&nbsp;m pixels). Counting raw detections would double count the same fire. So every detection is snapped to one common ~1&nbsp;km grid, the coarser MODIS footprint. A cell-day counts once, no matter how many sensors or overpasses saw it. Because a MODIS pixel can sit a cell away from the VIIRS pixels of the same fire, a cell counts as seen by both when the other sensor fired in that cell or one next to it on the same day. Confidence is mapped to one low / nominal / high scale (MODIS: below 30, 30&ndash;79, 80 and up). Fire radiative power takes the strongest single overpass per sensor, then the larger of the two sensors, so nothing is added twice. Days are local solar days<span id="tz-note"></span>.</p>
+          <p>NASA flies two kinds of fire sensors: MODIS (Terra, Aqua; 1&nbsp;km pixels) and VIIRS (Suomi NPP, NOAA-20, NOAA-21; 375&nbsp;m pixels). Counting raw detections would double count the same fire. A detection means a sensor saw heat consistent with fire in that pixel; it does not mean the whole cell burned. So every detection is snapped to one common ~1&nbsp;km grid, the coarser MODIS footprint. A cell-day counts once, no matter how many sensors or overpasses saw it. Because a MODIS pixel can sit a cell away from the VIIRS pixels of the same fire, a cell counts as seen by both when the other sensor fired in that cell or one next to it on the same day. Confidence is mapped to one low / nominal / high scale (MODIS: below 30, 30&ndash;79, 80 and up). Fire radiative power takes the strongest single overpass per sensor, then the larger of the two sensors, so nothing is added twice. Days are local solar days<span id="tz-note"></span>.</p>
           <h4>Sources used</h4>
           <div class="table-wrap"><table id="sources-table"></table></div>
           <p class="hint">Suomi NPP stopped delivering data on 2 Nov 2026, so later dates rely on NOAA-20, NOAA-21 and MODIS.</p>
@@ -186,6 +193,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
-  <script type="module" src="/js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

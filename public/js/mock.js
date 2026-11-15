@@ -111,9 +111,9 @@ export async function mockFetch(path, init = {}) {
     const t = setTimeout(res, ms);
     if (init.signal) init.signal.addEventListener('abort', () => { clearTimeout(t); rej(new DOMException('Aborted', 'AbortError')); });
   });
-  await wait(path === '/api/status' ? 50 : 350 + Math.random() * 500);
-  if (path === '/api/status') return json(200, { hasKey: true, availability: null });
-  if (path === '/api/calendar') {
+  await wait(path === 'api/status' ? 50 : 350 + Math.random() * 500);
+  if (path === 'api/status') return json(200, { hasKey: true, availability: null });
+  if (path === 'api/calendar') {
     const body = JSON.parse(init.body);
     if (parseDate(body.start) == null || parseDate(body.end) == null) return json(400, { error: { code: 'BAD_REQUEST', message: 'Bad dates.' } });
     return json(200, generate(body));

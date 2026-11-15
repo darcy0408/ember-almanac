@@ -5,6 +5,7 @@ import { buildSeries, summarize } from './analysis.js';
 import { renderCalendar, renderLegend } from './calendar.js';
 import { renderAgreement } from './charts.js';
 import * as mapx from './map.js';
+import { initEvidence, getExampleId } from './evidence.js';
 import { addDays, parseDate, diffDays, todayLocal, fmtMed, fmtShort, fmtInt, fmtNum, fmtCompact, fmtLong, el, safeStorage } from './util.js';
 
 const $ = (id) => document.getElementById(id);
@@ -16,7 +17,7 @@ const PRESETS = ['30d', '90d', '12m', 'ytd', 'custom'];
 const state = {
   mode: 'county', area: null, range: { preset: '12m', start: '', end: '' },
   metric: 'cells', series: null, result: null, cellsByDate: null, selected: null, cal: null,
-  hasKey: null, controller: null, building: false, mapReady: false,
+  hasKey: null, staticMode: false, controller: null, building: false, mapReady: false,
 };
 
 // ---------------------------------------------------------------- theme
@@ -207,6 +208,8 @@ function persist() {
   store.set('ember.last', JSON.stringify(doc));
   const p = new URLSearchParams();
   if (doc.area) { if (doc.area.t === 'c') p.set('c', doc.area.fips); else p.set('b', doc.area.bbox.join(',')); }
+  const ex = getExampleId() || new URLSearchParams(location.hash.slice(1)).get('example');
+  if (ex) p.set('example', ex);
   p.set('r', state.range.preset);
   if (state.range.start) { p.set('from', state.range.start); p.set('to', state.range.end); }
   try { history.replaceState(null, '', `${location.pathname}${location.search}#${p.toString()}`); } catch { /* ignore */ }
@@ -250,7 +253,7 @@ function showAlert(msg) { $('alert').textContent = msg || ''; $('alert').classLi
 
 async function onSubmit(e) {
   e.preventDefault();
-  if (state.building || state.hasKey === false) return;
+  if (state.building || state.hasKey === false || state.staticMode) return;
   showAlert('');
   if (!state.area) { $('area-msg').textContent = 'Choose a county or draw a box first.'; return; }
   const dErr = validateRange(state.range.start, state.range.end);
@@ -293,7 +296,7 @@ async function onSubmit(e) {
   } finally {
     state.building = false; state.controller = null;
     $('progress').hidden = true;
-    $('build-btn').disabled = state.hasKey === false;
+    $('build-btn').disabled = state.hasKey === false || state.staticMode;
   }
 }
 
@@ -343,7 +346,7 @@ function renderTiles(s) {
   $('tiles').replaceChildren(
     tile('Active fire days', fmtInt(s.active), `of ${fmtInt(s.days)} days`),
     tile('Peak day', s.peak ? fmtShort(s.peak.date) : '—', s.peak ? `${fmtInt(s.peak.cells)} cells` : 'no detections'),
-    tile('Fire cell-days', fmtInt(s.cellDays), 'each ~1 km cell counted once per day'),
+    tile('Cell-days with detected fire', fmtInt(s.cellDays), 'each ~1 km cell counted once per day'),
     tile('Total FRP', s.cellDays ? `${fmtCompact(s.frp)} MW` : '—', 'summed daily, de-duplicated'),
     tile('Sensor agreement', s.agreement == null ? '—' : `${Math.round(s.agreement * 100)}%`, 'of cell-days seen by both'),
   );
@@ -374,8 +377,8 @@ function renderDetail() {
     return;
   }
   const rows = d.cells === 0
-    ? [['Date', fmtLong(d.date)], ['Fire cells', 'none detected']]
-    : [['Date', fmtLong(d.date)], ['Fire cells', fmtInt(d.cells)], ['Both sensors', fmtInt(d.both), 'both'], ['MODIS only', fmtInt(d.modisOnly), 'modis'],
+    ? [['Date', fmtLong(d.date)], ['Cells with detected fire', 'none detected']]
+    : [['Date', fmtLong(d.date)], ['Cells with detected fire', fmtInt(d.cells)], ['Both sensors', fmtInt(d.both), 'both'], ['MODIS only', fmtInt(d.modisOnly), 'modis'],
       ['VIIRS only', fmtInt(d.viirsOnly), 'viirs'], ['FRP', `${fmtNum(d.frp || 0)} MW`], ['High-confidence cells', fmtInt(d.highConfCells)],
       ['Night-time cells', fmtInt(d.nightCells)], ['MODIS detections', fmtInt(d.modisDetections)], ['VIIRS detections', fmtInt(d.viirsDetections)]];
   const dl = el('dl', { class: 'detail-dl' });
@@ -391,7 +394,7 @@ function redrawMap(fitCells) {
   const cells = sel ? state.cellsByDate.get(sel) || [] : state.result.cells;
   const { drawn, capped } = mapx.showCells(cells, state.result.cellSizeKm || 1, { fit: !!sel && fitCells });
   const parts = [];
-  if (sel) parts.push(cells.length ? `${fmtInt(cells.length)} fire cells on ${fmtLong(sel)}.` : `No detections on ${fmtLong(sel)}.`);
+  if (sel) parts.push(cells.length ? `${fmtInt(cells.length)} cells with detected fire on ${fmtLong(sel)}.` : `No detections on ${fmtLong(sel)}.`);
   else parts.push(`Whole period: ${fmtInt(state.result.cells.length)} cell-days${state.result.cells.length ? ' (overlapping days are drawn on top of each other)' : ''}.`);
   if (capped) parts.push(`Showing the ${fmtInt(drawn)} highest-FRP cells only, to keep the map responsive.`);
   if (state.result.cellsTruncated) parts.push('The server trimmed the cell list for this area, so the map is incomplete; calendar totals are not affected.');
@@ -440,15 +443,17 @@ function downloadCsv() {
 
 // ---------------------------------------------------------------- init
 function applyKeyState() {
-  $('setup-notice').hidden = state.hasKey !== false;
-  $('build-btn').disabled = state.hasKey === false || state.building;
-  $('build-btn').title = state.hasKey === false ? 'Add FIRMS_MAP_KEY to .env first' : '';
+  $('setup-notice').hidden = state.hasKey !== false || state.staticMode;
+  $('static-notice').hidden = !state.staticMode;
+  $('build-btn').disabled = state.hasKey === false || state.staticMode || state.building;
+  $('build-btn').title = state.staticMode ? 'Not available on this static page' : state.hasKey === false ? 'Add FIRMS_MAP_KEY to .env first' : '';
 }
 
 async function init() {
   initTheme();
   if (MOCK) $('mock-badge').hidden = false;
   initCombo();
+  initEvidence(); // example loads independently of the live explorer
 
   state.mapReady = !!window.L;
   if (state.mapReady) {
@@ -505,7 +510,7 @@ async function init() {
     if (saved.area.t === 'b') { setMode('box'); setArea({ type: 'bbox', bbox: saved.area.bbox }, { quiet: true }); if (state.mapReady) { mapx.stopDraw(); syncDrawBtn(); mapx.fitArea(); } }
     else pendingCounty = saved.area.fips;
   }
-  const statusP = getStatus().then((s) => { state.hasKey = !!s.hasKey; }, (err) => { showAlert(`Cannot reach the server (${err.message}).`); });
+  const statusP = getStatus().then((s) => { state.hasKey = !!s.hasKey; }, () => { state.staticMode = true; }); // unreachable, 404 or non-JSON: static hosting, no backend
 
   // lazy: after first paint
   await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
@@ -516,7 +521,7 @@ async function init() {
   }
   await statusP;
   applyKeyState();
-  if (fromHash && fromHash.auto && state.area && state.hasKey !== false) $('controls').requestSubmit();
+  if (fromHash && fromHash.auto && state.area && state.hasKey !== false && !state.staticMode) $('controls').requestSubmit();
 }
 
 init();
