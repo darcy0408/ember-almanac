@@ -64,15 +64,15 @@
 <script>
 // Cue times come from the recording run (demo/record-walkthrough.mjs).
 const LINES = [
-  [0.0,  'Fire counts get compared across years. But the satellites change.'],
-  [3.6,  'Ember Almanac asks: is fire up or down, and do the satellites agree?'],
-  [9.0,  'Raw counts mislead: VIIRS sees three and a half times more than MODIS.'],
-  [13.2, 'On one shared grid, they move together in eleven of twelve years.'],
-  [18.6, 'Thirteen years as a calendar. In Chase County, Kansas, the burn season is April, every year.'],
-  [24.2, 'Switch to Maricopa County, around Phoenix. Both sensors show the same spike in 2019 and 2020, and both put 2025 below average.'],
-  [34.0, 'And for any place you pick, a live daily calendar and map.'],
+  [0.0,  "I'm Darcy, and this is Ember Almanac."],
+  [3.5,  'Is fire up or down, and do the satellites agree?'],
+  [8.5,  'Raw counts mislead: VIIRS sees three and a half times more.'],
+  [12.3, 'On one shared grid, they move together in eleven of twelve years.'],
+  [17.1, 'In Chase County, Kansas, the burn season is every April.'],
+  [20.6, 'In Phoenix, both sensors agree: 2025 was below average.'],
+  [25.5, 'And any place you pick gets a live calendar and map.'],
 ];
-const END = 40;
+const END = 29.5;
 const $ = (id) => document.getElementById(id);
 const v = $('v'), list = $('lines');
 const fmt = (s) => `0:${String(Math.floor(s)).padStart(2, '0')}`;

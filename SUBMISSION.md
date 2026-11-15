@@ -122,9 +122,9 @@ The code, tests and this text were written with Claude Code (Anthropic) during t
 and reviewed by the team. No AI-generated data is used: every number shown comes from NASA FIRMS.
 A sample-data mode exists for development only and is labelled on screen when active.
 
-## 40-second demo
+## 30-second demo
 
-`demo/walkthrough.mp4` is a silent 40-second screen recording of the app (made by
+`demo/walkthrough.mp4` is a silent 30-second screen recording of the app (made by
 `demo/record-walkthrough.mjs`). To add narration: `npm run demo`, open http://localhost:8799,
 press "Record with my voice" and read the highlighted lines. The take downloads as a `.webm`
 with picture and voice, ready to upload.
