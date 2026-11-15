@@ -73,6 +73,32 @@ regional fire and smoke reports and have to defend the number.
 - 2025 was below average by both sensors (MODIS −65%, VIIRS −37%), and so is 2026 through
   1 November (MODIS −67%, VIIRS −36%).
 
+## What we found (Butte County, California, 2013–2025)
+
+- Home of Paradise and the 2018 Camp Fire. Two years dominate, 2018 and 2020, and both sensors
+  show them: MODIS 1,180 and 1,101 detections, VIIRS 4,984 and 4,555, against a few hundred in
+  most other years.
+- VIIRS reported a median of 3.1 detections for every MODIS detection (range 1.0–4.2). The low end
+  is 2024, when the two counts were nearly equal (605 and 607); we have not traced why.
+- The sensors moved in the same direction in 10 of 12 year-to-year changes (rank correlation 0.91).
+- The held-out test did not favour the grid: median error 18% for raw detections against 29% for
+  cell-days.
+- For 2025 the sensors disagree (MODIS −38%, VIIRS −1%), so the page says the direction is not
+  established. For 2026 through 1 November both are below average (MODIS −65%, VIIRS −27%).
+
+## What we found (Los Angeles County, California, 2013–2025)
+
+- A second hard case, for a different reason than Multnomah. VIIRS reported a median of 12.8
+  detections for every MODIS detection (range 5.1–54.3), three to four times the ratio elsewhere,
+  and some sensor reported a detection on 4,438 days, close to nine days in ten.
+- Wildfire does not burn nine days in ten. Our reading, not checked against individual detections,
+  is that VIIRS picks up permanent heat sources in a large metro (industrial sites, for example)
+  that MODIS mostly misses. A hot spot is not always a fire.
+- The sensors still moved in the same direction in 10 of 12 year-to-year changes (rank correlation
+  0.81), but the held-out test is poor for both measures (75% raw, 74% cell-days).
+- 2025 was above average by both sensors (MODIS +47%, VIIRS +11%); 2026 through 1 November is
+  below average by both (MODIS −58%, VIIRS −12%).
+
 ## What we found (Brevard County, Florida, 2013–2025)
 
 - A steady record with no single dominant year, typical of frequent prescribed burning.
@@ -91,9 +117,12 @@ regional fire and smoke reports and have to defend the number.
 - The page flags the small counts instead of presenting a trend. The one clear signal, 2017, shows
   in both sensors.
 
-Across the five counties, gridding narrows the raw gap between sensors, and the two records
-track each other well wherever there is enough fire to count (four of five counties). The held-out
-test favoured the grid in two counties, favoured raw counts in two, and failed in the fifth.
+Across the seven counties, counting on a shared grid lowers the VIIRS-to-MODIS ratio in every one,
+and the two records move in the same direction in at least 10 of 12 year-to-year changes in six of
+seven. The held-out test is mixed: it favoured the grid in two counties (Chase narrowly, Brevard),
+favoured raw counts in three (Mesa, Maricopa, Butte), and was poor or failed for both measures in
+two (Los Angeles, Multnomah). So the grid makes the two records comparable in level, but it does
+not by itself make one predict the other better.
 
 ## Limits
 

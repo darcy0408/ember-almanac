@@ -18,6 +18,18 @@
     "note": "Phoenix area: desert and brush fires around a large metro"
   },
   {
+    "id": "06007",
+    "file": "data/example-06007.json",
+    "label": "Butte County, California",
+    "note": "Paradise and the 2018 Camp Fire: repeated very large wildfires"
+  },
+  {
+    "id": "06037",
+    "file": "data/example-06037.json",
+    "label": "Los Angeles County, California",
+    "note": "Large wildfires at the edge of a very large metro"
+  },
+  {
     "id": "12009",
     "file": "data/example-12009.json",
     "label": "Brevard County, Florida",
