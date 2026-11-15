@@ -100,3 +100,10 @@ The logic lives in `lib/harmonize.js`.
   two apart.
 - The one-cell agreement tolerance is a simple rule, not a per-pixel footprint model.
 - County search covers the United States; drawn boxes work anywhere, up to 20° per side.
+
+## Use of AI
+
+The code, tests and documentation in this repository were written with Claude Code (Anthropic)
+during the event, directed and reviewed by the team; commits carry a `Co-Authored-By: Claude` line.
+No AI-generated data is used: every number shown comes from NASA FIRMS. The demo video is a screen
+recording of the real app with a human voice-over.
